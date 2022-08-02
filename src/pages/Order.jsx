@@ -1,8 +1,7 @@
-import { Stack } from "@mui/material";
-import { blueGrey, grey } from "@mui/material/colors";
-import React from "react";
+import { Button, Stack } from "@mui/material";
+import { blueGrey, grey, pink } from "@mui/material/colors";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import MenuList from "../components/MenuList";
 import { menuItems } from "../data";
 import { Typotext } from "../styles/Typotext";
 
@@ -64,6 +63,40 @@ const OrderItemRow = styled.div`
   height: 30px;
   border-bottom: 1px solid ${blueGrey[900]};
 `;
+
+const MenuListContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  &:hover {
+    background-color: ${pink[200]};
+    cursor: pointer;
+  }
+
+  border-radius: 5px;
+  border: 1px solid ${grey[300]};
+`;
+
+const MenuListWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+`;
+
+const MenuListItemWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+const MenuListItemRow = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+`;
+
 const Order = () => {
   return (
     <Container>
@@ -72,12 +105,52 @@ const Order = () => {
           <Stack style={{ width: "100%" }} spacing={3}>
             {menuItems.map((item, idx) => {
               return (
-                <MenuList
-                  title={item.title}
-                  type={item.type}
-                  size={item.size}
-                  price={item.price}
-                />
+                <>
+                  <MenuListContainer>
+                    <MenuListWrapper>
+                      <Stack sx={{ width: "100%" }}>
+                        <Button
+                          sx={{
+                            width: "100%",
+                            height: "100px",
+                            justifyContent: "center",
+                            alignContent: "center",
+                            padding: "20px",
+                          }}
+                        >
+                          <MenuListItemRow>
+                            <Typotext
+                              size="20px"
+                              color={grey[600]}
+                              style={{ marginRight: "5px", fontWeight: "bold" }}
+                            >
+                              {item.title}
+                            </Typotext>
+                          </MenuListItemRow>
+
+                          <MenuListItemRow>
+                            <Typotext
+                              size="15px"
+                              color={grey[600]}
+                              style={{ fontWeight: "bold" }}
+                            >
+                              {item.size}
+                            </Typotext>
+                          </MenuListItemRow>
+                          <MenuListItemRow>
+                            <Typotext
+                              size="23px"
+                              color={grey[600]}
+                              style={{ fontWeight: "bolder" }}
+                            >
+                              {Number(item.price).toLocaleString()}
+                            </Typotext>
+                          </MenuListItemRow>
+                        </Button>
+                      </Stack>
+                    </MenuListWrapper>
+                  </MenuListContainer>
+                </>
               );
             })}
           </Stack>
@@ -97,12 +170,6 @@ const Order = () => {
                   주문일자
                 </Typotext>
                 <Typotext size={"20px"}>2022-08-16</Typotext>
-              </OrderItemRow>
-              <OrderItemRow>
-                <Typotext size={"20px"} style={{ marginRight: "30px" }}>
-                  주문번호
-                </Typotext>
-                <Typotext size={"20px"}>001</Typotext>
               </OrderItemRow>
             </Stack>
           </OrderContentWrapper>
