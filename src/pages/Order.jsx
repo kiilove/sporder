@@ -25,7 +25,7 @@ const Wrapper = styled.div`
 const MenuContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 35%;
   height: 100% auto;
   justify-content: center;
   align-content: center;
@@ -36,16 +36,26 @@ const MenuContainer = styled.div`
 const OrderContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 60%;
+  width: 35%;
 
   justify-content: center;
   align-content: center;
   align-items: flex-start;
   padding: 10px;
 `;
+const SummaryContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+`;
 
 const OrderContentWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   justify-content: center;
@@ -59,7 +69,6 @@ const OrderItemRow = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  width: 100%;
   height: 30px;
   border-bottom: 1px solid ${blueGrey[900]};
 `;
@@ -97,7 +106,38 @@ const MenuListItemRow = styled.div`
   align-content: center;
 `;
 
+const SummaryItemRow = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
 const Order = () => {
+  const [orderList, setOrderList] = useState([]);
+
+  const handleOrderList = (props) => {
+    const orderLength = orderList.length > 0 ? orderList.length + 1 : 1;
+    setOrderList([
+      ...orderList,
+      {
+        orderNum: orderLength,
+        orderId: props.orderId,
+        orderCode: props.orderCode,
+        orderTitle: props.orderTitle,
+        orderType: props.orderType,
+        orderPrice: props.orderPrice,
+      },
+    ]);
+  };
+
+  useEffect(() => {
+    const sumPrice = orderList
+      .map((item) => item.orderPrice)
+      .reduce((sum, item) => parseInt(sum) + parseInt(item), 0);
+    console.log(sumPrice);
+  }, [orderList]);
+
   return (
     <Container>
       <Wrapper>
@@ -117,6 +157,15 @@ const Order = () => {
                             alignContent: "center",
                             padding: "20px",
                           }}
+                          onClick={() =>
+                            handleOrderList({
+                              orderId: item.id,
+                              orderCode: item.code,
+                              orderTitle: item.title,
+                              orderType: item.type,
+                              orderPrice: item.price,
+                            })
+                          }
                         >
                           <MenuListItemRow>
                             <Typotext
@@ -160,7 +209,6 @@ const Order = () => {
             <Stack
               sx={{
                 width: "100%",
-                height: "100%",
                 alignContent: "flex-start",
               }}
               spacing={5}
@@ -171,9 +219,26 @@ const Order = () => {
                 </Typotext>
                 <Typotext size={"20px"}>2022-08-16</Typotext>
               </OrderItemRow>
+              {orderList.map((item, idx) => (
+                <OrderItemRow>
+                  <Typotext size={"20px"} style={{ marginRight: "30px" }}>
+                    {item.orderNum}
+                  </Typotext>
+                  <Typotext size={"20px"} style={{ marginRight: "30px" }}>
+                    {item.orderTitle}
+                  </Typotext>
+                </OrderItemRow>
+              ))}
             </Stack>
           </OrderContentWrapper>
         </OrderContainer>
+        <SummaryContainer>
+          <Stack>
+            <SummaryItemRow>
+              <Typotext size={"20px"}>주문요약</Typotext>
+            </SummaryItemRow>
+          </Stack>
+        </SummaryContainer>
       </Wrapper>
     </Container>
   );
