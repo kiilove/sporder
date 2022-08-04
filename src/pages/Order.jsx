@@ -25,7 +25,7 @@ const Wrapper = styled.div`
 const MenuContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 35%;
+  width: 45%;
   height: 100% auto;
   justify-content: center;
   align-content: center;
@@ -36,19 +36,11 @@ const MenuContainer = styled.div`
 const OrderContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 35%;
+  width: 45%;
 
   justify-content: center;
   align-content: center;
   align-items: flex-start;
-  padding: 10px;
-`;
-const SummaryContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 30%;
-  justify-content: center;
-  align-items: center;
   padding: 10px;
 `;
 
@@ -115,6 +107,9 @@ const SummaryItemRow = styled.div`
 
 const Order = () => {
   const [orderList, setOrderList] = useState([]);
+  const [orderCount, setOrderCount] = useState({});
+  const [sumPrice, setSumPrice] = useState({});
+  const [sumOrder, setSumOrder] = useState({});
 
   const handleOrderList = (props) => {
     const orderLength = orderList.length > 0 ? orderList.length + 1 : 1;
@@ -134,9 +129,26 @@ const Order = () => {
   useEffect(() => {
     const sumPrice = orderList
       .map((item) => item.orderPrice)
-      .reduce((sum, item) => parseInt(sum) + parseInt(item), 0);
+      .reduce((sum, price) => parseInt(sum) + parseInt(price), 0);
+    setSumPrice(sumPrice);
+    const sumCount = orderList
+      .map((item) => item.orderTitle)
+      .reduce((accu, curr) => {
+        accu[curr] = (accu[curr] || 0) + 1;
+        return accu;
+      }, {});
+    setSumOrder(sumCount);
+
+    console.log(sumCount);
     console.log(sumPrice);
   }, [orderList]);
+
+  // useEffect(() => {
+  //   menuItems.map((item) => {
+  //     setOrderCount((orderCount[item.code] = 0));
+  //   });
+  //   console.log(orderCount);
+  // }, []);
 
   return (
     <Container>
@@ -219,6 +231,14 @@ const Order = () => {
                 </Typotext>
                 <Typotext size={"20px"}>2022-08-16</Typotext>
               </OrderItemRow>
+              <SummaryItemRow>
+                <Typotext size={"20px"}>합계금액: </Typotext>
+                <Typotext size={"20px"}>{JSON.stringify(sumPrice)}</Typotext>
+              </SummaryItemRow>
+              <SummaryItemRow>
+                <Typotext size={"20px"}>주문요약: </Typotext>
+                <Typotext size={"20px"}>{JSON.stringify(sumOrder)}</Typotext>
+              </SummaryItemRow>
               {orderList.map((item, idx) => (
                 <OrderItemRow>
                   <Typotext size={"20px"} style={{ marginRight: "30px" }}>
@@ -232,13 +252,6 @@ const Order = () => {
             </Stack>
           </OrderContentWrapper>
         </OrderContainer>
-        <SummaryContainer>
-          <Stack>
-            <SummaryItemRow>
-              <Typotext size={"20px"}>주문요약</Typotext>
-            </SummaryItemRow>
-          </Stack>
-        </SummaryContainer>
       </Wrapper>
     </Container>
   );

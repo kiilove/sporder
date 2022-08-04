@@ -53,4 +53,13 @@ export const menuItems = [
     size: "레귤러",
     price: 3000,
   },
+  {
+    id: 7,
+    code: "CF",
+    title: "소풍컵과일",
+    type: "none",
+    option: "none",
+    size: "레귤러",
+    price: 3500,
+  },
 ];
