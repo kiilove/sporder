@@ -1,5 +1,5 @@
 import { faSlash } from "@fortawesome/free-solid-svg-icons";
-import { Button, Stack, TextField } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { blueGrey, grey, pink } from "@mui/material/colors";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
@@ -59,7 +59,7 @@ const OrderContentWrapper = styled.div`
   align-content: center;
   align-items: flex-start;
   padding: 10px;
-  margin-right: 100px;
+  margin-left: 100px;
 `;
 
 const OrderItemRow = styled.div`
@@ -77,9 +77,6 @@ const OrderItemBox = styled.div`
 
 const ArrowBox = styled.div`
   display: flex;
-  &:hover {
-    cursor: pointer;
-  }
 `;
 
 const MenuListContainer = styled.div`
@@ -124,11 +121,11 @@ const SummaryItemRow = styled.div`
 
 const Order = () => {
   const [orderList, setOrderList] = useState([]);
-  const [getMoney, setGetMoney] = useState(0);
+  const [orderCount, setOrderCount] = useState({});
   const [sumPrice, setSumPrice] = useState({});
   const [sumOrder, setSumOrder] = useState([]);
 
-  const handleOrderAddList = (props) => {
+  const handleOrderList = (props) => {
     const orderLength = orderList.length > 0 ? orderList.length + 1 : 1;
     setOrderList([
       ...orderList,
@@ -143,31 +140,6 @@ const Order = () => {
     ]);
   };
 
-  const handleOrderRemoveList = (props) => {
-    //console.log(props.orderCode);
-    const prevOrderList = [...orderList];
-    const prevSumOrder = [...sumOrder];
-    const targetArray = orderList.filter(
-      (fItem) => fItem.orderCode === props.orderCode
-    );
-
-    if (targetArray.length <= 0) {
-      const targetSumIndex = prevSumOrder.findIndex(
-        (fItem) => fItem.sumCode === props.sumCode
-      );
-      prevSumOrder.splice(targetSumIndex, 1);
-      setSumOrder(prevSumOrder);
-    } else {
-      const targetOrderNum = targetArray[targetArray.length - 1].orderNum;
-      const targetOrderIndex = prevOrderList.findIndex(
-        (fItem) => fItem.orderNum == targetOrderNum
-      );
-      prevOrderList.splice(targetOrderIndex, 1);
-    }
-
-    setOrderList(prevOrderList);
-  };
-
   const handleSumPrice = () => {
     const sumPrice = orderList
       .map((item) => item.orderPrice)
@@ -179,54 +151,63 @@ const Order = () => {
       console.log("주문목록 없음");
       setSumOrder([]);
     } else {
-      if (orderList.length == 1) {
+      console.log("주문목록이 있는 경우 진입");
+      if (sumOrder.length <= 0) {
+        console.log("최초 주문 추가");
+        //새로운 주문 최초 추가
         setSumOrder([
           {
             sumCode: orderList[0].orderCode,
             sumTitle: orderList[0].orderTitle,
-            sumPrice: orderList[0].orderPrice,
             sumCount: 1,
           },
         ]);
+        //console.log(sumOrder);
       } else {
+        console.log("두번째 주문부터 진입");
+        //두번째 주문 부터 같은 항목인지 다른 항목인지 체크 시작
+
         if (
-          sumOrder.some(
-            (sItem) =>
-              sItem.sumCode === orderList[orderList.length - 1].orderCode
-          )
+          //마지막 주문이 새로운 품목 주문
+          sumOrder.filter(
+            (filter) =>
+              filter.sumCode === orderList[orderList.length - 1].orderCode
+          ) <= 0
         ) {
-          const refreshSumOrder = () =>
-            sumOrder.map((item, idx) => {
-              const tempCount = orderList.filter(
-                (fItem) => fItem.orderCode === item.sumCode
-              ).length;
-              return {
-                sumCode: item.sumCode,
-                sumTitle: item.sumTitle,
-                sumPrice: item.sumPrice,
-                sumCount: tempCount,
-              };
-            });
-          setSumOrder(refreshSumOrder());
-        } else {
+          // 최초 품목 주문이기 때문에 수량 1로 할당 시킴
           setSumOrder([
             ...sumOrder,
             {
               sumCode: orderList[orderList.length - 1].orderCode,
               sumTitle: orderList[orderList.length - 1].orderTitle,
-              sumPrice: orderList[orderList.length - 1].orderPrice,
               sumCount: 1,
             },
           ]);
+        } else {
+          //기존에도 같은 품목이 있다면 숫자만 증가시킴
+
+          //기존 배열 한번 복사 setState바로 적용시 불필요한 숫자가 뒤에 붙어서 분리시킴
+          const prevSumOrder = [...sumOrder];
+
+          //sumOrder 수량만 타겟화하여 수정함
+          const refreshSumOrder = () => {
+            const targetIndex = prevSumOrder.findIndex(
+              (fIdx) =>
+                fIdx.sumCode === orderList[orderList.length - 1].orderCode
+            );
+            prevSumOrder[targetIndex].sumCount++;
+
+            return prevSumOrder;
+          };
+
+          setSumOrder(refreshSumOrder());
         }
       }
     }
   };
-
   useEffect(() => {
     handleSumOrder();
     handleSumPrice();
-    console.log(orderList);
   }, [orderList]);
 
   return (
@@ -255,9 +236,11 @@ const Order = () => {
                             padding: "20px",
                           }}
                           onClick={() =>
-                            handleOrderAddList({
+                            handleOrderList({
+                              orderId: item.id,
                               orderCode: item.code,
                               orderTitle: item.title,
+                              orderType: item.type,
                               orderPrice: item.price,
                             })
                           }
@@ -314,13 +297,9 @@ const Order = () => {
                 </Typotext>
                 <Typotext size={"20px"}>2022-08-16</Typotext>
               </OrderItemRow>
-              <SummaryItemRow
-                style={{ justifyContent: "flex-end", marginRight: "50px" }}
-              >
-                <Typotext size={"30px"} style={{ marginRight: "10px" }}>
-                  합계금액 :{" "}
-                </Typotext>
-                <Typotext size={"30px"} style={{ fontWeight: "bold" }}>
+              <SummaryItemRow>
+                <Typotext size={"20px"}>합계금액: </Typotext>
+                <Typotext size={"20px"}>
                   {Number(JSON.stringify(sumPrice)).toLocaleString()}
                 </Typotext>
               </SummaryItemRow>
@@ -345,10 +324,7 @@ const Order = () => {
                       width: "200px",
                     }}
                   >
-                    <Typotext
-                      size={"20px"}
-                      style={{ marginRight: "30px", fontWeight: "bold" }}
-                    >
+                    <Typotext size={"20px"} style={{ marginRight: "30px" }}>
                       {item.sumTitle}
                     </Typotext>
                   </OrderItemBox>
@@ -364,120 +340,14 @@ const Order = () => {
                       inputWidth="80px"
                       value={item.sumCount}
                       type="text"
-                      readOnly
                     />
                   </OrderItemBox>
                   <OrderItemBox style={{ flexDirection: "column" }}>
-                    <ArrowBox
-                      onClick={() =>
-                        handleOrderAddList({
-                          orderCode: item.sumCode,
-                          orderTitle: item.sumTitle,
-                          orderPrice: item.sumPrice,
-                        })
-                      }
-                    >
-                      <ExpandLessIcon />
-                    </ArrowBox>
-                    <ArrowBox
-                      onClick={() => {
-                        handleOrderRemoveList({ orderCode: item.sumCode });
-                      }}
-                    >
-                      <ExpandMoreIcon />
-                    </ArrowBox>
+                    <ArrowBox>{<ExpandLessIcon />}</ArrowBox>
+                    <ArrowBox>{<ExpandMoreIcon />}</ArrowBox>
                   </OrderItemBox>
                 </OrderItemRow>
               ))}
-            </Stack>
-            <Stack
-              spacing={2}
-              width={"100%"}
-              style={{ justifyContent: "flex-start", marginTop: "20px" }}
-            >
-              <OrderItemRow
-                style={{
-                  border: "none",
-                  height: "85px",
-                  alignItems: "center",
-                  alignContent: "center",
-                }}
-              >
-                <Button
-                  size="large"
-                  variant="contained"
-                  style={{
-                    height: "55px",
-                    width: "300px",
-                    fontSize: "20px",
-                  }}
-                >
-                  현금결제
-                </Button>
-                <OrderItemBox
-                  style={{
-                    border: "none",
-                    height: "85px",
-                    alignItems: "center",
-                    alignContent: "center",
-                  }}
-                >
-                  <TextField
-                    label="받은돈"
-                    type={"Number"}
-                    style={{ marginLeft: "10px" }}
-                    value={getMoney}
-                    onChange={(e) => setGetMoney(e.target.value)}
-                  ></TextField>
-                </OrderItemBox>
-                <OrderItemBox
-                  style={{
-                    border: "none",
-                    height: "85px",
-                    alignItems: "center",
-                    alignContent: "center",
-                  }}
-                >
-                  <Typotext size="20px" style={{ marginLeft: "20px" }}>
-                    거스름돈 :{" "}
-                  </Typotext>
-                  <Typotext size="20px" style={{ marginLeft: "20px" }}>
-                    {Number(getMoney - sumPrice).toLocaleString()}
-                  </Typotext>
-                </OrderItemBox>
-              </OrderItemRow>
-              <OrderItemRow style={{ border: "none", height: "80px" }}>
-                <Button
-                  size="large"
-                  variant="contained"
-                  color="secondary"
-                  style={{ width: "300px", fontSize: "20px" }}
-                >
-                  계좌이체
-                </Button>
-                <OrderItemBox
-                  style={{
-                    border: "none",
-                    height: "85px",
-                    alignItems: "center",
-                    alignContent: "center",
-                  }}
-                >
-                  <Typotext size="20px" style={{ marginLeft: "20px" }}>
-                    국민은행 : 000-000-0000-0000
-                  </Typotext>
-                </OrderItemBox>
-              </OrderItemRow>
-              <OrderItemRow style={{ border: "none", height: "80px" }}>
-                <Button
-                  size="large"
-                  variant="contained"
-                  color="warning"
-                  style={{ width: "300px", fontSize: "20px" }}
-                >
-                  카카오페이
-                </Button>
-              </OrderItemRow>
             </Stack>
           </OrderContentWrapper>
         </OrderContainer>
