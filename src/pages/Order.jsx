@@ -13,7 +13,17 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-
+import {
+  addDoc,
+  collection,
+  doc,
+  setDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "../firebase";
+import moment from "moment";
 const Container = styled.div`
   display: flex;
   box-sizing: border-box;
@@ -140,9 +150,14 @@ const SummaryItemRow = styled.div`
 const Order = () => {
   const [orderList, setOrderList] = useState([]);
   const [getMoney, setGetMoney] = useState(0);
+  const [payType, setPayType] = useState("cash");
+  const [payInfo, setPayInfo] = useState({});
   const [sumPrice, setSumPrice] = useState({});
   const [sumOrder, setSumOrder] = useState([]);
-  const [expaned, setExpaned] = useState(false);
+  const [expaned, setExpaned] = useState(true);
+  const [makeSaveData, setMakeSaveData] = useState({});
+  const [orderDate, setOrderDate] = useState(moment().format("YYYY-MM-DD"));
+  const [orderTitleNumber, setOrderTitleNumber] = useState(0);
 
   const handleExpandClick = () => {
     setExpaned(!expaned);
@@ -152,6 +167,9 @@ const Order = () => {
     setOrderList([]);
     setSumPrice(0);
     setSumOrder([]);
+    setGetMoney(0);
+    setPayType("cash");
+    setPayInfo({});
   };
 
   const handleOrderAddList = (props) => {
@@ -194,7 +212,36 @@ const Order = () => {
     setOrderList(prevOrderList);
   };
 
-  const handleSumPrice = () => {
+  //DB저장
+  const handleSaveOrder = async (props) => {
+    const res = await addDoc(collection(db, "popupOrders"), {
+      orderDate: orderDate,
+      orderSumPrice: sumPrice,
+      orderSpecs: sumOrder,
+      payType: payType,
+      payInfo: payInfo,
+    });
+
+    console.log(res);
+    clearOrder();
+    fetchCount();
+  };
+
+  const fetchCount = async () => {
+    const dateByCount = collection(db, "popupOrders");
+    const q = query(dateByCount, where("orderDate", "==", orderDate));
+    const querySnapshot = await getDocs(q);
+    // querySnapshot.forEach((doc) => {
+    //   // doc.data() is never undefined for query doc snapshots
+    //   console.log(doc.data());
+    //   console.log(doc.id);
+    // });
+
+    // console.log(querySnapshot.size);
+    setOrderTitleNumber(querySnapshot.size + 1);
+  };
+
+  const handlesumPrice = () => {
     const sumPrice = orderList
       .map((item) => item.orderPrice)
       .reduce((sum, price) => parseInt(sum) + parseInt(price), 0);
@@ -210,7 +257,7 @@ const Order = () => {
           {
             sumCode: orderList[0].orderCode,
             sumTitle: orderList[0].orderTitle,
-            sumPrice: orderList[0].orderPrice,
+            sumCost: orderList[0].orderPrice,
             sumCount: 1,
           },
         ]);
@@ -229,7 +276,7 @@ const Order = () => {
               return {
                 sumCode: item.sumCode,
                 sumTitle: item.sumTitle,
-                sumPrice: item.sumPrice,
+                sumCost: item.sumCost,
                 sumCount: tempCount,
               };
             });
@@ -240,7 +287,7 @@ const Order = () => {
             {
               sumCode: orderList[orderList.length - 1].orderCode,
               sumTitle: orderList[orderList.length - 1].orderTitle,
-              sumPrice: orderList[orderList.length - 1].orderPrice,
+              sumCost: orderList[orderList.length - 1].orderPrice,
               sumCount: 1,
             },
           ]);
@@ -251,9 +298,30 @@ const Order = () => {
 
   useEffect(() => {
     handleSumOrder();
-    handleSumPrice();
-    console.log(orderList);
+    handlesumPrice();
+    console.log(typeof sumOrder);
   }, [orderList]);
+
+  useEffect(() => {
+    const prevSaveDate = { ...makeSaveData };
+  }, [orderList]);
+
+  useEffect(() => {
+    console.log(orderDate);
+    fetchCount();
+  }, []);
+
+  useEffect(() => {
+    payType === "cash" &&
+      setPayInfo({
+        getMoney: getMoney,
+        returnMoney: Number(getMoney) - Number(sumPrice),
+      });
+  }, [getMoney]);
+
+  useEffect(() => {
+    payType === "cash" && setExpaned(true);
+  }, [payType]);
 
   return (
     <Container>
@@ -338,7 +406,7 @@ const Order = () => {
                 <Typotext size={"20px"} style={{ marginRight: "30px" }}>
                   주문번호
                 </Typotext>
-                <Typotext size={"20px"}>134</Typotext>
+                <Typotext size={"20px"}>{orderTitleNumber}</Typotext>
                 <SummaryItemRow
                   style={{ justifyContent: "flex-end", marginRight: "50px" }}
                 >
@@ -400,7 +468,7 @@ const Order = () => {
                           handleOrderAddList({
                             orderCode: item.sumCode,
                             orderTitle: item.sumTitle,
-                            orderPrice: item.sumPrice,
+                            orderPrice: item.sumCost,
                           })
                         }
                       >
@@ -460,41 +528,47 @@ const Order = () => {
                 }}
               >
                 <OrderItemBox style={{ height: "100%", flex: 1 }}>
-                  <FormControl>
+                  <FormControl disabled={sumPrice <= 0}>
                     <FormLabel id="paymentChoice">결제방식 선택</FormLabel>
                     <RadioGroup
                       aria-labelledby="paymentChoice"
-                      defaultValue="female"
+                      defaultValue={payType}
                       name="radio-buttons-group"
                       onChange={(e) => {
                         e.target.value === "cash"
                           ? setExpaned(true)
                           : setExpaned(false);
+                        setPayType(e.target.value);
                       }}
                     >
                       <FormControlLabel
                         value="cash"
                         control={<Radio />}
+                        checked={payType === "cash"}
                         label="현금결제"
                       />
                       <FormControlLabel
                         value="kakaoPay"
                         control={<Radio />}
+                        checked={payType === "kakaoPay"}
                         label="카카오페이"
                       />
                       <FormControlLabel
                         value="banking"
                         control={<Radio />}
+                        checked={payType === "banking"}
                         label="계좌이체"
                       />
                       <FormControlLabel
                         value="coupon"
                         control={<Radio />}
+                        checked={payType === "coupon"}
                         label="쿠폰"
                       />
                       <FormControlLabel
-                        value="promition"
+                        value="promotion"
                         control={<Radio />}
+                        checked={payType === "promotion"}
                         label="사은품으로 증정"
                       />
                     </RadioGroup>
@@ -531,6 +605,7 @@ const Order = () => {
                     <Typotext
                       size="18px"
                       style={{ fontWeight: "bold", marginLeft: "30px" }}
+                      disabled={sumPrice <= 0}
                     >
                       {Number(sumPrice).toLocaleString()}
                     </Typotext>
@@ -560,6 +635,7 @@ const Order = () => {
 
                         <TextField
                           size="small"
+                          disabled={orderList.length <= 0}
                           style={{
                             fontWeight: "bold",
                             width: "100px",
@@ -572,67 +648,94 @@ const Order = () => {
                           }}
                         ></TextField>
                       </Box>
-                      <Box sx={{ marginTop: "10px" }}>
-                        <Typotext
-                          onClick={() => setGetMoney(Number(getMoney) + 50000)}
-                          size="17px"
-                          style={{
-                            marginRight: "20px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          +5만
-                        </Typotext>
-                        <Typotext
-                          onClick={() => setGetMoney(Number(getMoney) + 10000)}
-                          size="17px"
-                          style={{
-                            marginRight: "20px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          +1만
-                        </Typotext>
-                        <Typotext
-                          onClick={() => setGetMoney(Number(getMoney) + 1000)}
-                          size="17px"
-                          style={{
-                            marginRight: "20px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          +1천
-                        </Typotext>
-                        <Typotext
-                          onClick={() => setGetMoney(Number(getMoney) + 500)}
-                          size="17px"
-                          style={{
-                            marginRight: "20px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          +5백
-                        </Typotext>
-                        <Typotext
-                          onClick={() => setGetMoney(Number(getMoney) + 100)}
-                          size="17px"
-                          style={{
-                            marginRight: "20px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          +1백
-                        </Typotext>
-                        <Typotext
-                          onClick={() => setGetMoney(0)}
-                          size="17px"
-                          style={{
-                            cursor: "pointer",
-                          }}
-                        >
-                          초기화
-                        </Typotext>
-                      </Box>
+                      {orderList.length > 0 && (
+                        <Box sx={{ marginTop: "10px" }}>
+                          <Typotext
+                            onClick={() => setGetMoney(Number(sumPrice))}
+                            size="16px"
+                            style={{
+                              marginRight: "10px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            정액
+                          </Typotext>
+                          <Typotext
+                            onClick={() =>
+                              setGetMoney(Number(getMoney) + 50000)
+                            }
+                            size="16px"
+                            style={{
+                              marginRight: "10px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            +5만
+                          </Typotext>
+                          <Typotext
+                            onClick={() =>
+                              setGetMoney(Number(getMoney) + 10000)
+                            }
+                            size="16px"
+                            style={{
+                              marginRight: "10px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            +1만
+                          </Typotext>
+                          <Typotext
+                            onClick={() => setGetMoney(Number(getMoney) + 5000)}
+                            size="16px"
+                            style={{
+                              marginRight: "10px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            +5천
+                          </Typotext>
+                          <Typotext
+                            onClick={() => setGetMoney(Number(getMoney) + 1000)}
+                            size="16px"
+                            style={{
+                              marginRight: "10px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            +1천
+                          </Typotext>
+                          <Typotext
+                            onClick={() => setGetMoney(Number(getMoney) + 500)}
+                            size="16px"
+                            style={{
+                              marginRight: "10px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            +5백
+                          </Typotext>
+                          <Typotext
+                            onClick={() => setGetMoney(Number(getMoney) + 100)}
+                            size="16px"
+                            style={{
+                              marginRight: "10px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            +1백
+                          </Typotext>
+                          <Typotext
+                            onClick={() => setGetMoney(0)}
+                            size="16px"
+                            style={{
+                              cursor: "pointe0",
+                            }}
+                          >
+                            0원
+                          </Typotext>
+                        </Box>
+                      )}
+
                       <Box
                         style={{
                           display: "flex",
@@ -673,17 +776,48 @@ const Order = () => {
                   width: "100%",
                 }}
               >
-                <Button
-                  size="large"
-                  variant="contained"
-                  fullWidth
-                  style={{
-                    height: "55px",
-                    fontSize: "20px",
-                  }}
-                >
-                  주문완료
-                </Button>
+                {payType === "cash" ? (
+                  <Button
+                    size="large"
+                    variant="contained"
+                    fullWidth
+                    style={{
+                      height: "55px",
+                      fontSize: "20px",
+                    }}
+                    disabled={
+                      sumPrice <= 0 || Number(sumPrice) - Number(getMoney) > 0
+                    }
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSaveOrder({
+                        sumOrder: sumOrder,
+                        orderList: orderList,
+                      });
+                    }}
+                  >
+                    주문완료
+                  </Button>
+                ) : (
+                  <Button
+                    size="large"
+                    variant="contained"
+                    fullWidth
+                    style={{
+                      height: "55px",
+                      fontSize: "20px",
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSaveOrder({
+                        sumOrder: sumOrder,
+                        orderList: orderList,
+                      });
+                    }}
+                  >
+                    주문완료
+                  </Button>
+                )}
               </OrderItemRow>
             </Stack>
           </OrderContentWrapper>

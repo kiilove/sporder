@@ -20,6 +20,7 @@ function App() {
           <Route path="/order">
             <Order />
           </Route>
+          <Route path="/orderList"></Route>
         </Switch>
       </div>
     </Router>

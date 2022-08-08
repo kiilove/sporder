@@ -122,7 +122,7 @@ const SummaryItemRow = styled.div`
 const Order = () => {
   const [orderList, setOrderList] = useState([]);
   const [orderCount, setOrderCount] = useState({});
-  const [sumPrice, setSumPrice] = useState({});
+  const [sumCost, setsumCost] = useState({});
   const [sumOrder, setSumOrder] = useState([]);
 
   const handleOrderList = (props) => {
@@ -140,11 +140,11 @@ const Order = () => {
     ]);
   };
 
-  const handleSumPrice = () => {
-    const sumPrice = orderList
+  const handlesumCost = () => {
+    const sumCost = orderList
       .map((item) => item.orderPrice)
       .reduce((sum, price) => parseInt(sum) + parseInt(price), 0);
-    setSumPrice(sumPrice);
+    setsumCost(sumCost);
   };
   const handleSumOrder = (props) => {
     if (orderList.length <= 0) {
@@ -207,7 +207,7 @@ const Order = () => {
   };
   useEffect(() => {
     handleSumOrder();
-    handleSumPrice();
+    handlesumCost();
   }, [orderList]);
 
   return (
@@ -300,7 +300,7 @@ const Order = () => {
               <SummaryItemRow>
                 <Typotext size={"20px"}>합계금액: </Typotext>
                 <Typotext size={"20px"}>
-                  {Number(JSON.stringify(sumPrice)).toLocaleString()}
+                  {Number(JSON.stringify(sumCost)).toLocaleString()}
                 </Typotext>
               </SummaryItemRow>
 
