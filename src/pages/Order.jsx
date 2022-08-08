@@ -1,5 +1,5 @@
 import { faSlash } from "@fortawesome/free-solid-svg-icons";
-import { Button, Stack, TextField } from "@mui/material";
+import { Box, Button, Collapse, Stack, TextField } from "@mui/material";
 import { blueGrey, grey, pink } from "@mui/material/colors";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
@@ -8,6 +8,11 @@ import { Textbox } from "../styles/Forms";
 import { Typotext } from "../styles/Typotext";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
 
 const Container = styled.div`
   display: flex;
@@ -62,11 +67,21 @@ const OrderContentWrapper = styled.div`
   margin-right: 100px;
 `;
 
+const OrderItemContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: "100%";
+  max-height: "500px";
+`;
+
 const OrderItemRow = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
   height: 60px;
+  width: 100%;
   border-bottom: 1px solid ${blueGrey[900]};
 `;
 
@@ -127,6 +142,17 @@ const Order = () => {
   const [getMoney, setGetMoney] = useState(0);
   const [sumPrice, setSumPrice] = useState({});
   const [sumOrder, setSumOrder] = useState([]);
+  const [expaned, setExpaned] = useState(false);
+
+  const handleExpandClick = () => {
+    setExpaned(!expaned);
+  };
+
+  const clearOrder = () => {
+    setOrderList([]);
+    setSumPrice(0);
+    setSumOrder([]);
+  };
 
   const handleOrderAddList = (props) => {
     const orderLength = orderList.length > 0 ? orderList.length + 1 : 1;
@@ -310,85 +336,87 @@ const Order = () => {
             >
               <OrderItemRow>
                 <Typotext size={"20px"} style={{ marginRight: "30px" }}>
-                  주문일자
+                  주문번호
                 </Typotext>
-                <Typotext size={"20px"}>2022-08-16</Typotext>
+                <Typotext size={"20px"}>134</Typotext>
+                <SummaryItemRow
+                  style={{ justifyContent: "flex-end", marginRight: "50px" }}
+                >
+                  <Typotext size={"30px"} style={{ marginRight: "10px" }}>
+                    합계금액 :{" "}
+                  </Typotext>
+                  <Typotext size={"30px"} style={{ fontWeight: "bold" }}>
+                    {Number(JSON.stringify(sumPrice)).toLocaleString()}
+                  </Typotext>
+                </SummaryItemRow>
               </OrderItemRow>
-              <SummaryItemRow
-                style={{ justifyContent: "flex-end", marginRight: "50px" }}
-              >
-                <Typotext size={"30px"} style={{ marginRight: "10px" }}>
-                  합계금액 :{" "}
-                </Typotext>
-                <Typotext size={"30px"} style={{ fontWeight: "bold" }}>
-                  {Number(JSON.stringify(sumPrice)).toLocaleString()}
-                </Typotext>
-              </SummaryItemRow>
 
-              {sumOrder.map((item, idx) => (
-                <OrderItemRow>
-                  <OrderItemBox
-                    style={{
-                      justifyContent: "center",
-                      alignItems: "center",
-                      alignContent: "center",
-                      width: "80px",
-                    }}
-                  >
-                    <Typotext size={"20px"}>{idx + 1}</Typotext>
-                  </OrderItemBox>
-                  <OrderItemBox
-                    style={{
-                      justifyContent: "flex-start",
-                      alignItems: "center",
-                      alignContent: "center",
-                      width: "200px",
-                    }}
-                  >
-                    <Typotext
-                      size={"20px"}
-                      style={{ marginRight: "30px", fontWeight: "bold" }}
-                    >
-                      {item.sumTitle}
-                    </Typotext>
-                  </OrderItemBox>
-                  <OrderItemBox
-                    style={{
-                      justifyContent: "center",
-                      alignItems: "center",
-                      alignContent: "center",
-                      width: "100px",
-                    }}
-                  >
-                    <Textbox
-                      inputWidth="80px"
-                      value={item.sumCount}
-                      type="text"
-                      readOnly
-                    />
-                  </OrderItemBox>
-                  <OrderItemBox style={{ flexDirection: "column" }}>
-                    <ArrowBox
-                      onClick={() =>
-                        handleOrderAddList({
-                          orderCode: item.sumCode,
-                          orderTitle: item.sumTitle,
-                          orderPrice: item.sumPrice,
-                        })
-                      }
-                    >
-                      <ExpandLessIcon />
-                    </ArrowBox>
-                    <ArrowBox
-                      onClick={() => {
-                        handleOrderRemoveList({ orderCode: item.sumCode });
+              <OrderItemContainer>
+                {sumOrder.map((item, idx) => (
+                  <OrderItemRow>
+                    <OrderItemBox
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        alignContent: "center",
+                        width: "80px",
                       }}
                     >
-                      <ExpandMoreIcon />
-                    </ArrowBox>
-                  </OrderItemBox>
-                </OrderItemRow>
-              ))}
+                      <Typotext size={"20px"}>{idx + 1}</Typotext>
+                    </OrderItemBox>
+                    <OrderItemBox
+                      style={{
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                        alignContent: "center",
+                        width: "200px",
+                      }}
+                    >
+                      <Typotext
+                        size={"20px"}
+                        style={{ marginRight: "30px", fontWeight: "bold" }}
+                      >
+                        {item.sumTitle}
+                      </Typotext>
+                    </OrderItemBox>
+                    <OrderItemBox
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        alignContent: "center",
+                        width: "100px",
+                      }}
+                    >
+                      <Textbox
+                        inputWidth="80px"
+                        value={item.sumCount}
+                        type="text"
+                        readOnly
+                      />
+                    </OrderItemBox>
+                    <OrderItemBox style={{ flexDirection: "column" }}>
+                      <ArrowBox
+                        onClick={() =>
+                          handleOrderAddList({
+                            orderCode: item.sumCode,
+                            orderTitle: item.sumTitle,
+                            orderPrice: item.sumPrice,
+                          })
+                        }
+                      >
+                        <ExpandLessIcon />
+                      </ArrowBox>
+                      <ArrowBox
+                        onClick={() => {
+                          handleOrderRemoveList({ orderCode: item.sumCode });
+                        }}
+                      >
+                        <ExpandMoreIcon />
+                      </ArrowBox>
+                    </OrderItemBox>
+                  </OrderItemRow>
+                ))}
+              </OrderItemContainer>
             </Stack>
             <Stack
               spacing={2}
@@ -398,84 +426,263 @@ const Order = () => {
               <OrderItemRow
                 style={{
                   border: "none",
-                  height: "85px",
+                  height: "55px",
                   alignItems: "center",
                   alignContent: "center",
+                  width: "100%",
                 }}
               >
                 <Button
                   size="large"
                   variant="contained"
+                  fullWidth
+                  color="error"
                   style={{
                     height: "55px",
-                    width: "300px",
+                    fontSize: "20px",
+                  }}
+                  onClick={() => {
+                    clearOrder();
+                  }}
+                >
+                  주문초기화
+                </Button>
+              </OrderItemRow>
+              <OrderItemRow
+                style={{
+                  border: "none",
+                  height: "100%",
+                  alignItems: "flex-start",
+                  alignContent: "center",
+                  width: "100%",
+                  padding: "20px",
+                  boxSizing: "border-box",
+                }}
+              >
+                <OrderItemBox style={{ height: "100%", flex: 1 }}>
+                  <FormControl>
+                    <FormLabel id="paymentChoice">결제방식 선택</FormLabel>
+                    <RadioGroup
+                      aria-labelledby="paymentChoice"
+                      defaultValue="female"
+                      name="radio-buttons-group"
+                      onChange={(e) => {
+                        e.target.value === "cash"
+                          ? setExpaned(true)
+                          : setExpaned(false);
+                      }}
+                    >
+                      <FormControlLabel
+                        value="cash"
+                        control={<Radio />}
+                        label="현금결제"
+                      />
+                      <FormControlLabel
+                        value="kakaoPay"
+                        control={<Radio />}
+                        label="카카오페이"
+                      />
+                      <FormControlLabel
+                        value="banking"
+                        control={<Radio />}
+                        label="계좌이체"
+                      />
+                      <FormControlLabel
+                        value="coupon"
+                        control={<Radio />}
+                        label="쿠폰"
+                      />
+                      <FormControlLabel
+                        value="promition"
+                        control={<Radio />}
+                        label="사은품으로 증정"
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </OrderItemBox>
+                <OrderItemBox
+                  style={{
+                    height: "100%",
+                    flex: 2,
+                    boxSizing: "border-box",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Box
+                    style={{
+                      display: "flex",
+                      flex: 1,
+                      alignItems: "flex-start",
+                      justifyContent: "flex-start",
+                      height: "100%",
+                      marginTop: "40px",
+                    }}
+                  >
+                    <Typotext
+                      size="18px"
+                      style={{
+                        fontWeight: "bold",
+                        width: "130px",
+                        textAlign: "right",
+                      }}
+                    >
+                      결제금액 :
+                    </Typotext>
+                    <Typotext
+                      size="18px"
+                      style={{ fontWeight: "bold", marginLeft: "30px" }}
+                    >
+                      {Number(sumPrice).toLocaleString()}
+                    </Typotext>
+                  </Box>
+                  <Collapse in={expaned} timeout="auto" unmountOnExit>
+                    <div>
+                      <Box
+                        style={{
+                          display: "flex",
+                          flex: 1,
+                          alignItems: "center",
+                          justifyContent: "flex-start",
+                          height: "100%",
+                          marginTop: "20px",
+                        }}
+                      >
+                        <Typotext
+                          size="18px"
+                          style={{
+                            fontWeight: "bold",
+                            width: "130px",
+                            textAlign: "right",
+                          }}
+                        >
+                          받은돈 :
+                        </Typotext>
+
+                        <TextField
+                          size="small"
+                          style={{
+                            fontWeight: "bold",
+                            width: "100px",
+                            marginLeft: "10px",
+                          }}
+                          sx={{ textAlign: "right" }}
+                          value={Number(getMoney)}
+                          onChange={(e) => {
+                            setGetMoney(e.target.value);
+                          }}
+                        ></TextField>
+                      </Box>
+                      <Box sx={{ marginTop: "10px" }}>
+                        <Typotext
+                          onClick={() => setGetMoney(Number(getMoney) + 50000)}
+                          size="17px"
+                          style={{
+                            marginRight: "20px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          +5만
+                        </Typotext>
+                        <Typotext
+                          onClick={() => setGetMoney(Number(getMoney) + 10000)}
+                          size="17px"
+                          style={{
+                            marginRight: "20px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          +1만
+                        </Typotext>
+                        <Typotext
+                          onClick={() => setGetMoney(Number(getMoney) + 1000)}
+                          size="17px"
+                          style={{
+                            marginRight: "20px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          +1천
+                        </Typotext>
+                        <Typotext
+                          onClick={() => setGetMoney(Number(getMoney) + 500)}
+                          size="17px"
+                          style={{
+                            marginRight: "20px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          +5백
+                        </Typotext>
+                        <Typotext
+                          onClick={() => setGetMoney(Number(getMoney) + 100)}
+                          size="17px"
+                          style={{
+                            marginRight: "20px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          +1백
+                        </Typotext>
+                        <Typotext
+                          onClick={() => setGetMoney(0)}
+                          size="17px"
+                          style={{
+                            cursor: "pointer",
+                          }}
+                        >
+                          초기화
+                        </Typotext>
+                      </Box>
+                      <Box
+                        style={{
+                          display: "flex",
+                          flex: 1,
+                          alignItems: "center",
+                          justifyContent: "flex-start",
+                          height: "100%",
+                          marginTop: "20px",
+                        }}
+                      >
+                        <Typotext
+                          size="18px"
+                          style={{
+                            fontWeight: "bold",
+                            width: "130px",
+                            textAlign: "right",
+                          }}
+                        >
+                          거스름돈 :
+                        </Typotext>
+                        <Typotext
+                          size="18px"
+                          style={{ fontWeight: "bold", marginLeft: "30px" }}
+                        >
+                          {Number(getMoney - sumPrice).toLocaleString()}
+                        </Typotext>
+                      </Box>
+                    </div>
+                  </Collapse>
+                </OrderItemBox>
+              </OrderItemRow>
+              <OrderItemRow
+                style={{
+                  border: "none",
+                  height: "55px",
+                  alignItems: "center",
+                  alignContent: "center",
+                  width: "100%",
+                }}
+              >
+                <Button
+                  size="large"
+                  variant="contained"
+                  fullWidth
+                  style={{
+                    height: "55px",
                     fontSize: "20px",
                   }}
                 >
-                  현금결제
-                </Button>
-                <OrderItemBox
-                  style={{
-                    border: "none",
-                    height: "85px",
-                    alignItems: "center",
-                    alignContent: "center",
-                  }}
-                >
-                  <TextField
-                    label="받은돈"
-                    type={"Number"}
-                    style={{ marginLeft: "10px" }}
-                    value={getMoney}
-                    onChange={(e) => setGetMoney(e.target.value)}
-                  ></TextField>
-                </OrderItemBox>
-                <OrderItemBox
-                  style={{
-                    border: "none",
-                    height: "85px",
-                    alignItems: "center",
-                    alignContent: "center",
-                  }}
-                >
-                  <Typotext size="20px" style={{ marginLeft: "20px" }}>
-                    거스름돈 :{" "}
-                  </Typotext>
-                  <Typotext size="20px" style={{ marginLeft: "20px" }}>
-                    {Number(getMoney - sumPrice).toLocaleString()}
-                  </Typotext>
-                </OrderItemBox>
-              </OrderItemRow>
-              <OrderItemRow style={{ border: "none", height: "80px" }}>
-                <Button
-                  size="large"
-                  variant="contained"
-                  color="secondary"
-                  style={{ width: "300px", fontSize: "20px" }}
-                >
-                  계좌이체
-                </Button>
-                <OrderItemBox
-                  style={{
-                    border: "none",
-                    height: "85px",
-                    alignItems: "center",
-                    alignContent: "center",
-                  }}
-                >
-                  <Typotext size="20px" style={{ marginLeft: "20px" }}>
-                    국민은행 : 000-000-0000-0000
-                  </Typotext>
-                </OrderItemBox>
-              </OrderItemRow>
-              <OrderItemRow style={{ border: "none", height: "80px" }}>
-                <Button
-                  size="large"
-                  variant="contained"
-                  color="warning"
-                  style={{ width: "300px", fontSize: "20px" }}
-                >
-                  카카오페이
+                  주문완료
                 </Button>
               </OrderItemRow>
             </Stack>

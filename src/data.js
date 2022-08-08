@@ -1,14 +1,5 @@
 export const menuItems = [
   {
-    id: 1,
-    code: "HA",
-    title: "아메리카노",
-    type: "핫",
-    option: "none",
-    size: "레귤러",
-    price: 3000,
-  },
-  {
     id: 2,
     code: "IA",
     title: "아이스 아메리카노",
