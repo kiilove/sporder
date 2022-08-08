@@ -33,39 +33,25 @@ const ListItem = styled.div`
 const OrderList = () => {
   const [initFetchData, setInitFetchData] = useState({});
   const [fetchedData, setFetchedData] = useState([]);
-  useEffect(() => {
-    let resData = [];
+  const [resData, setResData] = useState([]);
+
+  const getData = async () => {
     try {
-      const fetchData = async () => {
-        const query = await getDocs(collection(db, "popupOrders"));
-        await Promise.all(
-          query.forEach(async (doc) => {
-            //console.log(doc.id);
-            resData.push({ id: doc.id });
-          })
-        );
-        return resData;
-      };
-      const tempData = fetchData();
-      setFetchedData(tempData);
+      const res = await getDocs(collection(db, "popupOrders"));
+      console.log(res);
     } catch (error) {
       console.log(error);
     }
-
-    console.log(fetchedData);
+  };
+  useEffect(() => {
+    getData();
+    //console.log(resData);
   }, []);
 
   return (
     <Container>
       <Wrapper>
-        <ListContainer>
-          {fetchedData.length > 0 &&
-            fetchedData.map((item, idx) => (
-              <div>
-                <ListRow>{item.id}</ListRow>
-              </div>
-            ))}
-        </ListContainer>
+        <ListContainer></ListContainer>
       </Wrapper>
     </Container>
   );
