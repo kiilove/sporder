@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home";
 import Order from "./pages/Order";
+import OrderList from "./pages/OrderList";
 
 function App() {
   return (
@@ -20,7 +21,9 @@ function App() {
           <Route path="/order">
             <Order />
           </Route>
-          <Route path="/orderList"></Route>
+          <Route path="/orderList">
+            <OrderList />
+          </Route>
         </Switch>
       </div>
     </Router>

@@ -215,6 +215,7 @@ const Order = () => {
   //DB저장
   const handleSaveOrder = async (props) => {
     const res = await addDoc(collection(db, "popupOrders"), {
+      orderTitleNumber: orderTitleNumber,
       orderDate: orderDate,
       orderSumPrice: sumPrice,
       orderSpecs: sumOrder,
