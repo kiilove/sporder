@@ -54,7 +54,7 @@ const Home = () => {
         <ContentContainer>
           <TitleWrapper>
             <Typotext size={"65px"} style={{ fontWeight: "bold" }}>
-              소풍 주문시스템
+              팝업스토어 주문시스템
             </Typotext>
           </TitleWrapper>
           <ButtonWrapper>
@@ -73,6 +73,7 @@ const Home = () => {
                 color="secondary"
                 size="large"
                 style={{ width: "400px", height: "100px", fontSize: "40px" }}
+                href="/orderlist"
               >
                 주문목록
               </Button>
