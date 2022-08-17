@@ -84,7 +84,7 @@ const ListTs = styled.span`
 
 const OrderList = () => {
   const [initFetchData, setInitFetchData] = useState({});
-  const [fetchedData, setFetchedData] = useState([]);
+  const [resSumPrice, setResSumPrice] = useState(0);
   const [resData, setResData] = useState([]);
   const [dueDate, setDueDate] = useState({
     startDate: moment().format("YYYY-MM-DD"),
@@ -108,6 +108,8 @@ const OrderList = () => {
         list.push({ id: doc.id, ...doc.data() });
       });
       setResData(list);
+      const sumPrice = list.reduce((sum, item) => sum + item.orderSumPrice, 0);
+      setResSumPrice(sumPrice);
       console.log(resData);
     } catch (error) {
       console.log(error);
@@ -221,37 +223,74 @@ const OrderList = () => {
                 </AccordionSummary>
                 <AccordionDetails>
                   {item.orderSpecs.map((sItem, sIdx) => (
-                    <ListRow
-                      style={{
-                        backgroundColor: grey[100],
-                        height: "30px",
-                        padding: "20px",
-                        boxSizing: "border-box",
-                      }}
-                    >
-                      <ListTs style={{ width: "15%" }}></ListTs>
-                      <ListTs style={{ width: "15%" }}></ListTs>
-                      <ListTs
+                    <>
+                      <ListRow
                         style={{
-                          width: "40%",
-                          justifyContent: "flex-start",
-                          marginLeft: "20px",
+                          backgroundColor: grey[100],
+                          height: "30px",
+                          padding: "20px",
+                          boxSizing: "border-box",
                         }}
                       >
-                        {sIdx + 1}.
-                        <div style={{ marginLeft: "10px", marginRight: "5px" }}>
-                          {sItem.sumTitle}
-                        </div>
-                        ({sItem.sumCount})
-                      </ListTs>
-                      <ListTs style={{ width: "15%" }}></ListTs>
-                      <ListTs style={{ width: "15%" }}></ListTs>
-                    </ListRow>
+                        <ListTs style={{ width: "15%" }}></ListTs>
+                        <ListTs style={{ width: "15%" }}></ListTs>
+                        <ListTs
+                          style={{
+                            width: "40%",
+                            justifyContent: "flex-start",
+                            marginLeft: "20px",
+                          }}
+                        >
+                          {sIdx + 1}.
+                          <div
+                            style={{ marginLeft: "10px", marginRight: "5px" }}
+                          >
+                            {sItem.sumTitle}
+                          </div>
+                          ({sItem.sumCount})
+                        </ListTs>
+                        <ListTs style={{ width: "15%" }}></ListTs>
+                        <ListTs style={{ width: "15%" }}></ListTs>
+                      </ListRow>
+                    </>
                   ))}
+                  <ListRow>
+                    <ListTs>
+                      결제금액 : {Number(item.orderSumPrice).toLocaleString()}
+                    </ListTs>
+                    {item.payType === "cash" && (
+                      <>
+                        <ListTs>
+                          받은돈 :{" "}
+                          {Number(item.payInfo.getMoney).toLocaleString()}
+                        </ListTs>
+                        <ListTs>
+                          거스름돈 :{" "}
+                          {Number(item.payInfo.returnMoney).toLocaleString()}
+                        </ListTs>
+                      </>
+                    )}
+                  </ListRow>
                 </AccordionDetails>
               </Accordion>
             </ListRow>
           ))}
+          <ListRow
+            style={{
+              height: "50px",
+              width: "70%",
+              padding: "20px",
+              boxSizing: "border-box",
+            }}
+          >
+            <ListTh style={{ width: "15%", height: "20px" }}></ListTh>
+            <ListTh style={{ width: "15%", height: "20px" }}></ListTh>
+            <ListTh style={{ width: "40%", height: "20px" }}></ListTh>
+            <ListTh style={{ width: "15%", height: "20px" }}>합계</ListTh>
+            <ListTh style={{ width: "15%", height: "20px" }}>
+              {Number(resSumPrice).toLocaleString()}
+            </ListTh>
+          </ListRow>
         </ListContainer>
       </Wrapper>
     </Container>
