@@ -171,6 +171,22 @@ const OrderList = () => {
               boxSizing: "border-box",
             }}
           >
+            <ListTh style={{ width: "15%", height: "30px" }}></ListTh>
+            <ListTh style={{ width: "15%", height: "30px" }}></ListTh>
+            <ListTh style={{ width: "40%", height: "30px" }}></ListTh>
+            <ListTh style={{ width: "15%", height: "30px" }}>합계</ListTh>
+            <ListTh style={{ width: "15%", height: "30px" }}>
+              {Number(resSumPrice).toLocaleString()}
+            </ListTh>
+          </ListRow>
+          <ListRow
+            style={{
+              height: "50px",
+              width: "70%",
+              padding: "20px",
+              boxSizing: "border-box",
+            }}
+          >
             <ListTh style={{ width: "15%" }}>일자</ListTh>
             <ListTh style={{ width: "15%" }}>번호</ListTh>
             <ListTh style={{ width: "40%" }}>내용</ListTh>
@@ -275,22 +291,6 @@ const OrderList = () => {
               </Accordion>
             </ListRow>
           ))}
-          <ListRow
-            style={{
-              height: "50px",
-              width: "70%",
-              padding: "20px",
-              boxSizing: "border-box",
-            }}
-          >
-            <ListTh style={{ width: "15%", height: "20px" }}></ListTh>
-            <ListTh style={{ width: "15%", height: "20px" }}></ListTh>
-            <ListTh style={{ width: "40%", height: "20px" }}></ListTh>
-            <ListTh style={{ width: "15%", height: "20px" }}>합계</ListTh>
-            <ListTh style={{ width: "15%", height: "20px" }}>
-              {Number(resSumPrice).toLocaleString()}
-            </ListTh>
-          </ListRow>
         </ListContainer>
       </Wrapper>
     </Container>

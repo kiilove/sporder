@@ -1,6 +1,7 @@
 import {
   blueGrey,
   deepOrange,
+  green,
   grey,
   lightBlue,
   orange,
@@ -17,7 +18,7 @@ const Container = styled.div`
   display: flex;
   width: 100%;
   height: 70px;
-  background-color: ${teal[500]};
+  background-color: ${green[500]};
 `;
 
 const Wrapper = styled.div`
@@ -38,8 +39,8 @@ const IconBox = styled.div`
   height: 40px;
   box-sizing: border-box;
   color: ${grey[800]};
-  margin-left: 30px;
-  margin-right: 30px;
+  margin-left: 50px;
+  margin-right: 50px;
   &:hover {
     cursor: pointer;
     color: ${grey[900]};
@@ -51,7 +52,7 @@ const Header = () => {
       <Wrapper>
         <IconBox>
           <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-            <HomeIcon style={{ fontSize: "30px" }} href="/" />
+            <HomeIcon style={{ fontSize: "40px", color: "white" }} href="/" />
           </Link>
         </IconBox>
         <IconBox>
@@ -59,7 +60,7 @@ const Header = () => {
             to="/orderlist"
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            <MenuBookIcon style={{ fontSize: "30px" }} />
+            <MenuBookIcon style={{ fontSize: "40px", color: "white" }} />
           </Link>
         </IconBox>
         <IconBox>
@@ -67,7 +68,7 @@ const Header = () => {
             to="/order"
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            <ReceiptLongIcon style={{ fontSize: "30px" }} />
+            <ReceiptLongIcon style={{ fontSize: "40px", color: "white" }} />
           </Link>
         </IconBox>
       </Wrapper>
