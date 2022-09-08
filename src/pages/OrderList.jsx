@@ -90,11 +90,23 @@ const OrderList = () => {
     startDate: moment().format("YYYY-MM-DD"),
     endDate: moment().format("YYYY-MM-DD"),
   });
+  const [orders, setOrders] = useState({});
 
   const today = moment().format("YYYY-MM-DD");
+  const groupBy = (input, key) => {
+    return input.reduce((acc, currentValue) => {
+      let groupKey = currentValue[key];
+      if (!acc[groupKey]) {
+        acc[groupKey] = [];
+      }
+      acc[groupKey].push(currentValue);
+      return acc;
+    }, {});
+  };
 
   const fetchData = async (props) => {
     let list = [];
+    let ordersArr = [];
     try {
       const q = query(
         collection(db, "popupOrders"),
@@ -108,9 +120,15 @@ const OrderList = () => {
         list.push({ id: doc.id, ...doc.data() });
       });
       setResData(list);
+
       const sumPrice = list.reduce((sum, item) => sum + item.orderSumPrice, 0);
+      const sumOrders = list.map((item, idx) => {
+        ordersArr.push(item.orderSpecs);
+      });
       setResSumPrice(sumPrice);
-      console.log(resData);
+      setOrders(ordersArr);
+
+      console.log(orders);
     } catch (error) {
       console.log(error);
     }
