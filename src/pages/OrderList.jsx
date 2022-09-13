@@ -90,7 +90,8 @@ const OrderList = () => {
     startDate: moment().format("YYYY-MM-DD"),
     endDate: moment().format("YYYY-MM-DD"),
   });
-  const [orders, setOrders] = useState({});
+  const [orders, setOrders] = useState([]);
+  const [orders2, setOrders2] = useState([]);
 
   const today = moment().format("YYYY-MM-DD");
   const groupBy = (input, key) => {
@@ -123,27 +124,38 @@ const OrderList = () => {
       setResData(list);
 
       const sumPrice = list.reduce((sum, item) => sum + item.orderSumPrice, 0);
-      const sumOrders = list.map((item, idx) => {
-        item.orderSpecs.forEach((order) => {
-          const tempCount = order.sumCount;
-          const tempTitle = order.sumTitle;
-          if (Object.keys(orders).length == 0) {
-            setOrders({ tempTitle: tempCount });
-          } else {
-            setOrders({ ...orders, tempTitle: tempCount });
-          }
-          //console.log({ 타이틀: tempTitle, 수량: tempCount });
-        });
-      });
-      setResSumPrice(sumPrice);
-      setOrders(ordersObj);
-      //console.log(sumOrders);
+      //let flat = [].concat.apply([], list.orderSpecs);
+      //let flat = list.reduce((acc, it) => [...acc, ...it], []);
+      //console.log(flat);
+      const flatOrderSpecs = list.map((item, idx) => {
+        //let orderArr = [];
 
-      console.log(orders);
+        ordersArr = [...ordersArr, ...item.orderSpecs];
+
+        let group1 = ordersArr.reduce(
+          (acc, it) => ({
+            ...acc,
+            [it.sumTitle]: (acc[it.sumTitle] || 0) + it.sumCount,
+          }),
+          []
+        );
+        //console.log(Object.keys(group1));
+        //console.log(Object.values(group1));
+
+        //setOrders(group1);
+        const group1Arr = Object.entries(group1);
+
+        console.log(group1Arr);
+        setOrders(group1Arr);
+      });
+      //console.log(ordersArr);
+      //console.log(orders);
+      setResSumPrice(sumPrice);
     } catch (error) {
       console.log(error);
     }
   };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -185,12 +197,29 @@ const OrderList = () => {
                 type="date"
                 defaultValue={today}
                 value={dueDate.endDate}
+                onChange={(e) => {
+                  setDueDate({ ...dueDate, endDate: e.target.value });
+                }}
                 sx={{ width: 150 }}
                 InputLabelProps={{
                   shrink: true,
                 }}
               />
             </ListItem>
+          </ListRow>
+          <ListRow
+            style={{
+              height: "50px",
+              width: "70%",
+              padding: "20px",
+              boxSizing: "border-box",
+            }}
+          >
+            <ListTh style={{ width: "100%", height: "30px" }}>
+              {orders.map((item, idx) => (
+                <div style={{ marginRight: "15px" }}>{item}</div>
+              ))}
+            </ListTh>
           </ListRow>
           <ListRow
             style={{
@@ -208,6 +237,7 @@ const OrderList = () => {
               {Number(resSumPrice).toLocaleString()}
             </ListTh>
           </ListRow>
+
           <ListRow
             style={{
               height: "50px",
