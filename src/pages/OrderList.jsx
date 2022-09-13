@@ -123,7 +123,10 @@ const OrderList = () => {
 
       const sumPrice = list.reduce((sum, item) => sum + item.orderSumPrice, 0);
       const sumOrders = list.map((item, idx) => {
-        ordersArr.push(item.orderSpecs);
+        //ordersArr.push(item.orderSpecs);
+        item.orderSpecs.forEach((specs) => {
+          console.log(specs.sumTitle);
+        });
       });
       setResSumPrice(sumPrice);
       setOrders(ordersArr);
