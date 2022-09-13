@@ -107,6 +107,7 @@ const OrderList = () => {
   const fetchData = async (props) => {
     let list = [];
     let ordersArr = [];
+    let ordersObj = {};
     try {
       const q = query(
         collection(db, "popupOrders"),
@@ -123,13 +124,20 @@ const OrderList = () => {
 
       const sumPrice = list.reduce((sum, item) => sum + item.orderSumPrice, 0);
       const sumOrders = list.map((item, idx) => {
-        //ordersArr.push(item.orderSpecs);
-        item.orderSpecs.forEach((specs) => {
-          console.log(specs.sumTitle);
+        item.orderSpecs.forEach((order) => {
+          const tempCount = order.sumCount;
+          const tempTitle = order.sumTitle;
+          if (Object.keys(orders).length == 0) {
+            setOrders({ tempTitle: tempCount });
+          } else {
+            setOrders({ ...orders, tempTitle: tempCount });
+          }
+          //console.log({ 타이틀: tempTitle, 수량: tempCount });
         });
       });
       setResSumPrice(sumPrice);
-      setOrders(ordersArr);
+      setOrders(ordersObj);
+      //console.log(sumOrders);
 
       console.log(orders);
     } catch (error) {
