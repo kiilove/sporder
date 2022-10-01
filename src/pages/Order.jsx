@@ -355,7 +355,7 @@ const Order = () => {
                           <Button
                             sx={{
                               width: "100%",
-                              height: "100px",
+                              height: "80px",
                               justifyContent: "center",
                               alignContent: "center",
                               padding: "20px",

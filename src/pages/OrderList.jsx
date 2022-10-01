@@ -90,11 +90,25 @@ const OrderList = () => {
     startDate: moment().format("YYYY-MM-DD"),
     endDate: moment().format("YYYY-MM-DD"),
   });
+  const [orders, setOrders] = useState([]);
+  const [orders2, setOrders2] = useState([]);
 
   const today = moment().format("YYYY-MM-DD");
+  const groupBy = (input, key) => {
+    return input.reduce((acc, currentValue) => {
+      let groupKey = currentValue[key];
+      if (!acc[groupKey]) {
+        acc[groupKey] = [];
+      }
+      acc[groupKey].push(currentValue);
+      return acc;
+    }, {});
+  };
 
   const fetchData = async (props) => {
     let list = [];
+    let ordersArr = [];
+    let ordersObj = {};
     try {
       const q = query(
         collection(db, "popupOrders"),
@@ -108,13 +122,40 @@ const OrderList = () => {
         list.push({ id: doc.id, ...doc.data() });
       });
       setResData(list);
+
       const sumPrice = list.reduce((sum, item) => sum + item.orderSumPrice, 0);
+      //let flat = [].concat.apply([], list.orderSpecs);
+      //let flat = list.reduce((acc, it) => [...acc, ...it], []);
+      //console.log(flat);
+      const flatOrderSpecs = list.map((item, idx) => {
+        //let orderArr = [];
+
+        ordersArr = [...ordersArr, ...item.orderSpecs];
+
+        let group1 = ordersArr.reduce(
+          (acc, it) => ({
+            ...acc,
+            [it.sumTitle]: (acc[it.sumTitle] || 0) + it.sumCount,
+          }),
+          []
+        );
+        //console.log(Object.keys(group1));
+        //console.log(Object.values(group1));
+
+        //setOrders(group1);
+        const group1Arr = Object.entries(group1);
+
+        console.log(group1Arr);
+        setOrders(group1Arr);
+      });
+      //console.log(ordersArr);
+      //console.log(orders);
       setResSumPrice(sumPrice);
-      console.log(resData);
     } catch (error) {
       console.log(error);
     }
   };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -156,12 +197,29 @@ const OrderList = () => {
                 type="date"
                 defaultValue={today}
                 value={dueDate.endDate}
+                onChange={(e) => {
+                  setDueDate({ ...dueDate, endDate: e.target.value });
+                }}
                 sx={{ width: 150 }}
                 InputLabelProps={{
                   shrink: true,
                 }}
               />
             </ListItem>
+          </ListRow>
+          <ListRow
+            style={{
+              height: "50px",
+              width: "70%",
+              padding: "20px",
+              boxSizing: "border-box",
+            }}
+          >
+            <ListTh style={{ width: "100%", height: "30px" }}>
+              {orders.map((item, idx) => (
+                <div style={{ marginRight: "15px" }}>{item}</div>
+              ))}
+            </ListTh>
           </ListRow>
           <ListRow
             style={{
@@ -179,6 +237,7 @@ const OrderList = () => {
               {Number(resSumPrice).toLocaleString()}
             </ListTh>
           </ListRow>
+
           <ListRow
             style={{
               height: "50px",
