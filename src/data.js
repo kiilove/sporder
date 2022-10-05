@@ -78,7 +78,7 @@ export const menuItems = [
     type: "아이스",
     option: "none",
     size: "레귤러",
-    price: 2500,
+    price: 3000,
   },
   {
     id: 8,
