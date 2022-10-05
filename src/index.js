@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import App from "./App";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Menus from "./pages/Menus";
 import Order from "./pages/Order";
 import OrderList from "./pages/OrderList";
 
@@ -19,6 +20,7 @@ root.render(
       <Route path="/login" element={<Login />} />
       <Route path="/order" element={<Order />} />
       <Route path="/orderlist" element={<OrderList />} />
+      <Route path="/menus" element={<Menus />} />
     </Routes>
   </BrowserRouter>
 );

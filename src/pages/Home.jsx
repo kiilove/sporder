@@ -79,6 +79,15 @@ const Home = () => {
               >
                 주문목록
               </Button>
+              <Button
+                variant="contained"
+                color="warning"
+                size="large"
+                style={{ width: "400px", height: "100px", fontSize: "40px" }}
+                href="/menus"
+              >
+                메뉴관리
+              </Button>
             </Stack>
           </ButtonWrapper>
         </ContentContainer>
