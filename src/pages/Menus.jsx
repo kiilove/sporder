@@ -7,12 +7,18 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs,orderBy, query,updateDoc, deleteField } from "firebase/firestore";
 import React from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import styled from "styled-components";
 import Header from "../components/Header";
 import { db } from "../firebase";
+
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Box } from "@mui/system";
+import { grey } from "@mui/material/colors";
 
 const Container = styled.div`
   display: flex;
@@ -77,7 +83,7 @@ const MenuItemContainer = styled.div`
 const MenuItemRow = styled.div`
   display: flex;
   width: 60%;
-  height: 150px;
+  height: 20px;
   padding: 10px;
 `;
 
@@ -91,18 +97,41 @@ const MenuItemCell = styled.div`
 
 const Menus = () => {
   const [newItem, setNewItem] = useState({});
+  const [menuList, setMenuList] = useState([])
 
   const handleSaveNewItem = async () => {
     const res = await addDoc(collection(db, "menus"), { ...newItem });
 
-    console.log(res);
+    resMenus()
+    
   };
+
+  const resMenus = async()=>{
+    let list=[]
+    try {
+      const docRef = query(collection(db, "menus"),orderBy("itemCate"), orderBy("itemTitle"));
+      const resData = await getDocs(docRef);
+      resData.forEach((doc)=>{
+        list.push({id:doc.id, ...doc.data()})
+      })
+      console.log(list);
+      setMenuList(list)
+      
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleNewItem = (e) => {
     const { name, value } = e.target;
     setNewItem({ ...newItem, [name]: value });
     console.log(newItem);
   };
+
+  useEffect(() => {
+    resMenus()
+  }, [])
+  
   return (
     <Container>
       <Wrapper>
@@ -110,6 +139,25 @@ const Menus = () => {
         <ContentWrapper style={{ marginTop: "10px" }}>
           <MenuContainer>
             <NewItemContainer>
+              <FormControl
+                sx={{ minWidth: 120 }}
+              >
+                <InputLabel id="itemCate">분류</InputLabel>
+                <Select
+                  labelId="itemCate"
+                  id="itemCateSelect"
+                  name="itemCate"
+                  onChange={(e) => {
+                    handleNewItem(e);
+                  }}
+                  value={newItem.itemCate}
+                >
+                  <MenuItem value="커피">커피</MenuItem>
+                  <MenuItem value="차">차</MenuItem>
+                  <MenuItem value="에이드">에이드</MenuItem>
+                  <MenuItem value="디저트">디저트</MenuItem>
+                </Select>
+              </FormControl>
               <TextField
                 id="itemTitle"
                 name="itemTitle"
@@ -120,9 +168,6 @@ const Menus = () => {
               />
               <FormControl
                 sx={{ minWidth: 120 }}
-                onChange={(e) => {
-                  handleNewItem(e);
-                }}
               >
                 <InputLabel id="itemType">타입</InputLabel>
                 <Select
@@ -178,12 +223,23 @@ const Menus = () => {
             <Divider />
             <MenuItemContainer>
               <MenuItemRow>
+                <MenuItemCell>타입</MenuItemCell>
                 <MenuItemCell>품명</MenuItemCell>
                 <MenuItemCell>타입</MenuItemCell>
                 <MenuItemCell>사이즈</MenuItemCell>
                 <MenuItemCell>가격</MenuItemCell>
                 <MenuItemCell>기능</MenuItemCell>
               </MenuItemRow>
+              {menuList && menuList.map((item, idx)=>(
+              <MenuItemRow style={{height:"20px"}} key={item.id}>
+                <MenuItemCell>{item.itemCate}</MenuItemCell>
+                <MenuItemCell>{item.itemTitle}</MenuItemCell>
+                <MenuItemCell>{item.itemType}</MenuItemCell>
+                <MenuItemCell>{item.itemSize}</MenuItemCell>
+                <MenuItemCell><TextField value ={item.itemPrice} variant="standard" size="small"/></MenuItemCell>
+                <MenuItemCell><Box sx={{marginRight:2}}><SaveIcon style={{fontSize:"18px", color:grey[600], cursor:"pointer", ":hover":{color:grey[800]}}}/></Box><Box><DeleteIcon  style={{fontSize:"18px", color:grey[600], cursor:"pointer"}}/></Box></MenuItemCell>
+              </MenuItemRow>))}
+              
             </MenuItemContainer>
           </MenuContainer>
         </ContentWrapper>
