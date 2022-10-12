@@ -3,7 +3,6 @@ import { Box, Button, Collapse, Stack, TextField } from "@mui/material";
 import { blueGrey, grey, pink } from "@mui/material/colors";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { menuItems } from "../data";
 import { Textbox } from "../styles/Forms";
 import { Typotext } from "../styles/Typotext";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -21,6 +20,7 @@ import {
   query,
   where,
   getDocs,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import moment from "moment";
@@ -167,6 +167,7 @@ const Order = () => {
   const [makeSaveData, setMakeSaveData] = useState({});
   const [orderDate, setOrderDate] = useState(moment().format("YYYY-MM-DD"));
   const [orderTitleNumber, setOrderTitleNumber] = useState(0);
+  const [menuItems, setMenuItems] = useState([]);
 
   const handleExpandClick = () => {
     setExpaned(!expaned);
@@ -306,6 +307,27 @@ const Order = () => {
     }
   };
 
+  const resMenus = async () => {
+    let list = [];
+    try {
+      const docRef = query(
+        collection(db, "menus"),
+        orderBy("itemCate"),
+        orderBy("itemTitle"),
+        orderBy("itemType"),
+        orderBy("itemSize")
+      );
+      const resData = await getDocs(docRef);
+      resData.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      console.log(list);
+      setMenuItems(list);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     handleSumOrder();
     handlesumPrice();
@@ -319,6 +341,7 @@ const Order = () => {
   useEffect(() => {
     console.log(orderDate);
     fetchCount();
+    resMenus();
   }, []);
 
   useEffect(() => {
@@ -362,9 +385,9 @@ const Order = () => {
                             }}
                             onClick={() =>
                               handleOrderAddList({
-                                orderCode: item.code,
-                                orderTitle: item.title,
-                                orderPrice: item.price,
+                                orderCode: item.id,
+                                orderTitle: item.itemTitle,
+                                orderPrice: item.itemPrice,
                               })
                             }
                           >
@@ -377,7 +400,7 @@ const Order = () => {
                                   fontWeight: "bold",
                                 }}
                               >
-                                {item.title}
+                                {item.itemTitle}
                               </Typotext>
                             </MenuListItemRow>
 
@@ -387,7 +410,7 @@ const Order = () => {
                                 color={grey[600]}
                                 style={{ fontWeight: "bold" }}
                               >
-                                {item.size}
+                                {item.itemSize}
                               </Typotext>
                             </MenuListItemRow>
                             <MenuListItemRow>
@@ -396,7 +419,7 @@ const Order = () => {
                                 color={grey[600]}
                                 style={{ fontWeight: "bolder" }}
                               >
-                                {Number(item.price).toLocaleString()}
+                                {Number(item.itemPrice).toLocaleString()}
                               </Typotext>
                             </MenuListItemRow>
                           </Button>
