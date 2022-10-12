@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Menus from "./pages/Menus";
 import Order from "./pages/Order";
 import OrderList from "./pages/OrderList";
+import Report from "./pages/Report";
 
 // import your route components too
 const isLogin = true;
@@ -21,6 +22,7 @@ root.render(
       <Route path="/order" element={<Order />} />
       <Route path="/orderlist" element={<OrderList />} />
       <Route path="/menus" element={<Menus />} />
+      <Route path="/report" element={<Report />} />
     </Routes>
   </BrowserRouter>
 );

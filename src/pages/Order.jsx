@@ -321,8 +321,16 @@ const Order = () => {
       resData.forEach((doc) => {
         list.push({ id: doc.id, ...doc.data() });
       });
-      console.log(list);
-      setMenuItems(list);
+      console.log(
+        list.sort((a, b) =>
+          a.itemCate == b.itemCate ? 0 : a.itemCate > b.itemCate ? -1 : 1
+        )
+      );
+      setMenuItems(
+        list.sort((a, b) =>
+          a.itemCate == b.itemCate ? 0 : a.itemCate > b.itemCate ? -1 : 1
+        )
+      );
     } catch (error) {
       console.log(error);
     }
@@ -403,7 +411,24 @@ const Order = () => {
                                 {item.itemTitle}
                               </Typotext>
                             </MenuListItemRow>
-
+                            <MenuListItemRow>
+                              <Typotext
+                                size="15px"
+                                color={grey[600]}
+                                style={{ fontWeight: "bold" }}
+                              >
+                                {item.itemType}
+                              </Typotext>
+                            </MenuListItemRow>
+                            <MenuListItemRow>
+                              <Typotext
+                                size="15px"
+                                color={grey[600]}
+                                style={{ fontWeight: "bold" }}
+                              >
+                                {item.itemCate}
+                              </Typotext>
+                            </MenuListItemRow>
                             <MenuListItemRow>
                               <Typotext
                                 size="15px"

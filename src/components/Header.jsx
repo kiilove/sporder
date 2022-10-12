@@ -13,6 +13,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import ListOutlinedIcon from "@mui/icons-material/ListOutlined";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import { Link } from "react-router-dom";
 
 const Container = styled.div`
@@ -70,6 +71,14 @@ const Header = () => {
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <ReceiptLongIcon style={{ fontSize: "40px", color: "white" }} />
+          </Link>
+        </IconBox>
+        <IconBox>
+          <Link
+            to="/report"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <AssessmentIcon style={{ fontSize: "40px", color: "white" }} />
           </Link>
         </IconBox>
         <IconBox>
